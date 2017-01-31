@@ -1,8 +1,8 @@
 import time
 from unittest.mock import MagicMock, Mock, PropertyMock, patch
 
-from hubbypy.hub_api import HubSpot
-from hubbypy.contact_properties import (
+from hubbypy.hubbypy.hub_api import HubSpot
+from hubbypy.hubbypy.contact_properties import (
     AccessorProperty,
     BaseUserProperty,
     ConstantProperty,
@@ -127,7 +127,7 @@ def test_constant_property():
 
 def test_request_queing():
 
-    with patch('hubbypy.hub_api.HubSpot.client',
+    with patch('hubbypy.hubbypy.hub_api.HubSpot.client',
                new_callable=PropertyMock) as mock_client:
 
         client = Mock()
@@ -152,9 +152,9 @@ def test_request_queing():
 
 def test_request_queing_sleeping():
 
-    with patch('hubbypy.hub_api.time.sleep', return_value=None) as sleeper:
+    with patch('hubbypy.hubbypy.hub_api.time.sleep', return_value=None) as sleeper:
 
-        with patch('hubbypy.hub_api.HubSpot.client',
+        with patch('hubbypy.hubbypy.hub_api.HubSpot.client',
                    new_callable=PropertyMock) as mock_client:
 
             client = Mock()
@@ -180,9 +180,9 @@ def test_request_queing_sleeping():
 
 def test_old_requests_cleared_from_cache():
 
-    with patch('hubbypy.hub_api.time.sleep', return_value=None) as sleeper:
+    with patch('hubbypy.hubbypy.hub_api.time.sleep', return_value=None) as sleeper:
 
-        with patch('hubbypy.hub_api.HubSpot.client',
+        with patch('hubbypy.hubbypy.hub_api.HubSpot.client',
                    new_callable=PropertyMock) as mock_client:
 
             client = Mock()
