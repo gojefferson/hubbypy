@@ -31,6 +31,10 @@ setuptools.setup(
         'Programming Language :: Python :: 3.5',
     ],
     py_modules=[
-        'hubbypy',
+        'contact_properties',
+        'hub_api',
+    ],
+    install_requires=[
+        'requests',
     ],
 )
