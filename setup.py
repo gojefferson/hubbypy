@@ -19,7 +19,7 @@ setuptools.setup(
     author_email='jeff@casefleet.com',
     license='BSD',
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
