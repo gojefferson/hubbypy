@@ -163,10 +163,12 @@ class AccessorProperty(BaseUserProperty):
     def _get_value(self, user):
         try:
             return rgetattr(user, self.accessor)
-        except AttributeError:
-            logger.error('[HUBSPOT] Could not get {} property on user with email{}'.format(
-                self.accessor,
-                user.email))
+        except Exception as err:
+            logger.debug(
+                '[HUBSPOT] Could not get {} property on user with email{}, error: {}'.format(
+                    self.accessor,
+                    user.email,
+                    err))
 
 
 class FunctionProperty(BaseUserProperty):
