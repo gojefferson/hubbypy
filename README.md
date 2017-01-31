@@ -1,4 +1,8 @@
-## Getting Setup
+# HubbyPy
+
+`HubbyPy` is a wrapper for HubSpot's contact properties and contacts API. It is particularly useful for web applications where you want to sync information about your users with HubSpot.
+
+## Getting Set Up
 
 ```python
 hs_user_property_manager = UserPropertyManager(

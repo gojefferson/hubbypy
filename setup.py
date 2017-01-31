@@ -6,12 +6,12 @@ root_dir = os.path.abspath(os.path.dirname(__file__))
 
 description = "A Python wrapper for the HubSpot contacts and contact properties API"
 
-with open(os.path.join(root_dir, 'README.rst')) as f:
+with open(os.path.join(root_dir, 'README.md')) as f:
     long_description = f.read()
 
 setuptools.setup(
     name='hubbypy',
-    version='1.1',
+    version='0.1',
     description=description,
     long_description=long_description,
     url='https://github.com/gojefferson/hubbypy',
