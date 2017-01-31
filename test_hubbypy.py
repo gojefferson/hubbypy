@@ -1,10 +1,8 @@
 import time
 from unittest.mock import MagicMock, Mock, PropertyMock, patch
 
-from django.core.cache import cache
-
-from .hub_api import HubSpot
-from .contact_properties import (
+from hubbypy.hub_api import HubSpot
+from hubbypy.contact_properties import (
     AccessorProperty,
     BaseUserProperty,
     ConstantProperty,
@@ -20,6 +18,18 @@ hs_user_property_manager = UserPropertyManager(
         }
     ]
 )
+
+
+class SimpleCache:
+
+    def __init__(self):
+        self._cache = {}
+
+    def set(self, key, value):
+        self._cache[key] = value
+
+    def get(self, key):
+        return self._cache.get(key)
 
 
 def test_base_mappings():
@@ -117,16 +127,19 @@ def test_constant_property():
 
 def test_request_queing():
 
-    with patch('hub_api.HubSpot.client',
+    with patch('hubbypy.hub_api.HubSpot.client',
                new_callable=PropertyMock) as mock_client:
 
         client = Mock()
         client.request = MagicMock(return_value=True)
         mock_client.return_value = client
 
+        cache = SimpleCache()
+
         test_hubspot = HubSpot(
             api_key='testing',
-            user_property_manager=hs_user_property_manager
+            user_property_manager=hs_user_property_manager,
+            cache_backend=cache
         )
 
         test_hubspot.request('post', 'www.test.com')
@@ -139,18 +152,21 @@ def test_request_queing():
 
 def test_request_queing_sleeping():
 
-    with patch('hub_api.time.sleep', return_value=None) as sleeper:
+    with patch('hubbypy.hub_api.time.sleep', return_value=None) as sleeper:
 
-        with patch('hub_api.HubSpot.client',
+        with patch('hubbypy.hub_api.HubSpot.client',
                    new_callable=PropertyMock) as mock_client:
 
             client = Mock()
             client.request = MagicMock(return_value=True)
             mock_client.return_value = client
 
+            cache = SimpleCache()
+
             test_hubspot = HubSpot(
                 api_key='testing',
-                user_property_manager=hs_user_property_manager
+                user_property_manager=hs_user_property_manager,
+                cache_backend=cache
             )
 
             cache.set(test_hubspot.cache_key, None)
@@ -164,18 +180,21 @@ def test_request_queing_sleeping():
 
 def test_old_requests_cleared_from_cache():
 
-    with patch('hub_api.time.sleep', return_value=None) as sleeper:
+    with patch('hubbypy.hub_api.time.sleep', return_value=None) as sleeper:
 
-        with patch('hub_api.HubSpot.client',
+        with patch('hubbypy.hub_api.HubSpot.client',
                    new_callable=PropertyMock) as mock_client:
 
             client = Mock()
             client.request = MagicMock(return_value=True)
             mock_client.return_value = client
 
+            cache = SimpleCache()
+
             test_hubspot = HubSpot(
                 api_key='testing',
-                user_property_manager=hs_user_property_manager
+                user_property_manager=hs_user_property_manager,
+                cache_backend=cache
             )
 
             now = time.time()

@@ -3,7 +3,6 @@ import logging
 import time
 
 import requests
-from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +20,9 @@ class HubSpot:
 
     user_property_manager = None
 
-    def __init__(self, *, api_key, user_property_manager):
+    def __init__(self, *, api_key, user_property_manager, cache_backend):
         self.api_key = api_key
+        self.cache_backend = cache_backend
         self.user_property_manager = user_property_manager
 
     @property
@@ -39,7 +39,7 @@ class HubSpot:
         We err on the safe side and sleep when there are 8 within the last 10 seconds.
         """
         now = time.time()
-        recent_calls = cache.get(self.cache_key)
+        recent_calls = self.cache_backend.get(self.cache_key)
         if recent_calls:
             recent_calls = [t for t in recent_calls if now - t <= 10]
             if len(recent_calls) >= 8:
@@ -50,7 +50,7 @@ class HubSpot:
         if not recent_calls:
             recent_calls = []
         recent_calls.append(time.time())
-        cache.set(self.cache_key, recent_calls)
+        self.cache_backend.set(self.cache_key, recent_calls)
         return self.client.request(method, url, params=params, **kwargs)
 
     # sync user methods
