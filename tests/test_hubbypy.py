@@ -1,3 +1,4 @@
+import pytest
 import time
 from unittest.mock import MagicMock, Mock, PropertyMock, patch
 
@@ -32,7 +33,7 @@ class SimpleCache:
         return self._cache.get(key)
 
 
-def test_base_mappings():
+def test_bool_native_type_to_hs_type():
     active_user = BaseUserProperty(
         name='some_org_is_active',
         label='Active Account User',
@@ -41,6 +42,113 @@ def test_base_mappings():
     )
 
     assert active_user.hs_type == 'string'
+    assert active_user.field_type == 'booleancheckbox'
+
+
+def test_date_native_type_to_hs_type():
+    active_user = BaseUserProperty(
+        name='some_org_is_active',
+        label='Active Account User',
+        group_name='some_org',
+        native_type='date',
+    )
+
+    assert active_user.hs_type == 'date'
+    assert active_user.field_type == 'date'
+
+
+def test_datetime_native_type_to_hs_type():
+    active_user = BaseUserProperty(
+        name='some_org_is_active',
+        label='Active Account User',
+        group_name='some_org',
+        native_type='datetime',
+    )
+
+    assert active_user.hs_type == 'datetime'
+    assert active_user.field_type == 'date'
+
+
+def test_varchar_native_type_to_hs_type():
+    active_user = BaseUserProperty(
+        name='some_org_is_active',
+        label='Active Account User',
+        group_name='some_org',
+        native_type='varchar',
+    )
+
+    assert active_user.hs_type == 'string'
+    assert active_user.field_type == 'text'
+
+
+def test_texarea_native_type_to_hs_type():
+    active_user = BaseUserProperty(
+        name='some_org_is_active',
+        label='Active Account User',
+        group_name='some_org',
+        native_type='textarea',
+    )
+
+    assert active_user.hs_type == 'string'
+    assert active_user.field_type == 'textarea'
+
+
+def test_number_native_type_to_hs_type():
+    active_user = BaseUserProperty(
+        name='some_org_is_active',
+        label='Active Account User',
+        group_name='some_org',
+        native_type='number',
+    )
+
+    assert active_user.hs_type == 'number'
+    assert active_user.field_type == 'number'
+
+
+def test_cannot_use_type_other_than_those_listed():
+
+    with pytest.raises(KeyError):
+
+        BaseUserProperty(
+            name='some_org_is_active',
+            label='Active Account User',
+            group_name='some_org',
+            native_type='numberolog',
+        )
+
+
+def test_adding_two_properties_with_same_name_raises_error():
+
+    property_manager = UserPropertyManager(
+        groups=[
+            {
+                'name': 'your_org',
+                'displayName': 'Your API Data'
+            }
+        ]
+    )
+
+    property_manager.add_prop(
+        BaseUserProperty(
+            name='some_org_is_active',
+            label='Active Account User',
+            group_name='some_org',
+            native_type='bool',
+        )
+    )
+
+    with pytest.raises(ValueError) as err:
+
+        property_manager.add_prop(
+            BaseUserProperty(
+                name='some_org_is_active',
+                label='Active Account User',
+                group_name='some_org',
+                native_type='bool',
+            )
+        )
+
+        assert 'Manager already contains' in str(err.value)
 
 
 def test_get_value_user_accessor():
