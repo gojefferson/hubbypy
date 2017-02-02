@@ -205,7 +205,7 @@ class BaseUserProperty:
         """
         value = self._get_value(user)
 
-        if value:
+        if value is not None:
             if self.native_type == 'bool':
                 return 'true' if value else 'false'
             if self.native_type == 'datetime':
