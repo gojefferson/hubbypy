@@ -1,5 +1,6 @@
 import pytest
 import time
+from datetime import date, datetime
 from unittest.mock import MagicMock, Mock, PropertyMock, patch
 
 from hubbypy.hubbypy.hub_api import HubSpot
@@ -178,6 +179,44 @@ def test_get_value_user_accessor():
     )
 
     assert active_user._get_value(user) == 'yes'
+
+
+def test_get_value_user_accessor_date():
+
+    user = Mock()
+    now = datetime.now()
+    user.joined_date = now
+
+    active_user = AccessorProperty(
+        name='some_org_is_active',
+        label='Active Account User',
+        group_name='some_org',
+        native_type='date',
+        accessor='joined_date'
+    )
+
+    expected = int(time.mktime(now.date().timetuple()) * 1000)
+
+    assert active_user.get_formatted_value(user) == expected
+
+
+def test_get_value_user_accessor_date_time():
+
+    user = Mock()
+    now = datetime.now()
+    user.joined_date = now
+
+    active_user = AccessorProperty(
+        name='some_org_is_active',
+        label='Active Account User',
+        group_name='some_org',
+        native_type='datetime',
+        accessor='joined_date'
+    )
+
+    expected = int(time.mktime(now.timetuple()) * 1e3 + now.microsecond / 1e3)
+
+    assert active_user.get_formatted_value(user) == expected
 
 
 def test_get_value_func_property():

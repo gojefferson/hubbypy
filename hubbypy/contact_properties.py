@@ -2,6 +2,7 @@ import copy
 import functools
 import logging
 import time
+from datetime import datetime, date
 
 logger = logging.getLogger(__name__)
 
@@ -209,8 +210,10 @@ class BaseUserProperty:
                 return 'true' if value else 'false'
             if self.native_type == 'datetime':
                 return self._datetime_to_unix(value)
-            if self.native_type == 'date':
+            if self.native_type == 'date' and type(value) is date:
                 return self._date_to_unix(value)
+            if self.native_type == 'date' and type(value) is datetime:
+                return self._date_to_unix(value.date())
             return value
 
     def _get_value(self, user):
