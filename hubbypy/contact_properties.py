@@ -172,9 +172,10 @@ class BaseUserProperty:
         if native_type == 'enumeration':
             assert type(options) == list
             self.options = options
-        if native_type == 'bool':
+        elif native_type == 'bool':
             self._handle_bool()
         else:
+            self.options = options
             self.hs_type = self._get_hs_type(native_type, options)
         self.field_type = self._get_field_type(native_type)
 
