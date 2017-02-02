@@ -11,7 +11,7 @@ with open(os.path.join(root_dir, 'README.md')) as f:
 
 setuptools.setup(
     name='hubbypy',
-    version='0.1.7',
+    version='0.1.8',
     description=description,
     long_description=long_description,
     url='https://github.com/gojefferson/hubbypy',
