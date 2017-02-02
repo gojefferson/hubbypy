@@ -26,6 +26,45 @@ def rgetattr(obj, attr, default=sentinel):
     return functools.reduce(_getattr, [obj] + attr.split('.'))
 
 
+class EnumerationOption:
+    """
+      Each option will have the following data
+      - "description": null,
+          String or null; a description of the option.
+      - "label": "Blue",
+          String; A human readable label for the option. The label is displayed in the HubSpot UI.
+      - "displayOrder": -1,
+          Integer; Options are displayed in numerical order based on this value,
+          options with -1 appear after options with positive values
+      - "hidden": false,
+          Boolean; hidden values will not be displayed in HubSpot
+      - "value": "blue"
+          String; The internal value of the option.  The value must be used to set
+          the value of the property.
+    }
+
+    """
+
+    def __init__(self, *, value, label, display_order=-1, description=None, hidden=False):
+        self.value = value
+        self.label = label
+        self.display_order = display_order
+        self.description = description
+        self.hidden = hidden
+
+    def get_dict(self):
+
+        _dict = {}
+
+        _dict['value'] = self.value
+        _dict['label'] = self.label
+        _dict['displayOrder'] = self.display_order
+        _dict['description'] = self.description
+        _dict['hidden'] = self.hidden
+
+        return _dict
+
+
 class BaseUserProperty:
     """
     The base class for three different types of properties you may want to post to HubSpot to use
@@ -77,34 +116,67 @@ class BaseUserProperty:
     fieldType = None
     built_in = False
 
-    type_mappings = {
-        'bool': 'string',
-        'date': 'date',
-        'datetime': 'datetime',
-        'varchar': 'string',
-        'textarea': 'string',
-        'number': 'number'
-    }
+    def _get_hs_type(self, native_type, options=None):
+        """
+        string, number, date, datetime, or enumeration
+        """
+        type_mappings = {
+            'date': 'date',
+            'datetime': 'datetime',
+            'varchar': 'string',
+            'textarea': 'string',
+            'number': 'number',
+            'enumeration': 'enumeration'
+        }
+        if native_type == 'enumeration':
+            assert type(options) == list
+            self.options = options
+        return type_mappings[native_type]
 
-    field_type_mappings = {
-        'bool': 'booleancheckbox',
-        'date': 'date',
-        'datetime': 'date',
-        'varchar': 'text',
-        'textarea': 'textarea',
-        'number': 'number'
-    }
+    def _get_field_type(self, native_type):
+        field_type_mappings = {
+            'bool': 'booleancheckbox',
+            'date': 'date',
+            'datetime': 'date',
+            'varchar': 'text',
+            'textarea': 'textarea',
+            'number': 'number',
+            'enumeration': ''
+        }
+        return field_type_mappings.get(native_type, None)
+
+    def _handle_bool(self):
+        self.hs_type = 'enumeration'
+        trueOption = EnumerationOption(
+            value='true',
+            label='Yes',
+            display_order=1
+        )
+
+        falseOption = EnumerationOption(
+            value='false',
+            label='No',
+            display_order=2
+        )
+
+        self.options = [trueOption, falseOption]
 
     def __init__(self, *, name, native_type, label=None, description=None,
-                 group_name=None, built_in=False):
+                 group_name=None, options=None, built_in=False):
         self.name = name
         self.label = label
         self.description = description
         self.native_type = native_type
         self.group_name = group_name
         self.built_in = built_in
-        self.hs_type = self.type_mappings[native_type]
-        self.field_type = self.field_type_mappings.get(native_type, None)
+        if native_type == 'enumeration':
+            assert type(options) == list
+            self.options = options
+        if native_type == 'bool':
+            self._handle_bool()
+        else:
+            self.hs_type = self._get_hs_type(native_type, options)
+        self.field_type = self._get_field_type(native_type)
 
     def get_dict(self):
         """
@@ -121,6 +193,8 @@ class BaseUserProperty:
             _dict['description'] = self.description
         if self.field_type:
             _dict['fieldType'] = self.field_type
+        if self.options:
+            _dict['options'] = [o.get_dict() for o in self.options]
         return _dict
 
     def get_formatted_value(self, user):

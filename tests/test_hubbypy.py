@@ -41,8 +41,21 @@ def test_bool_native_type_to_hs_type():
         native_type='bool',
     )
 
-    assert active_user.hs_type == 'string'
+    assert active_user.hs_type == 'enumeration'
     assert active_user.field_type == 'booleancheckbox'
+
+
+def test_bool_native_type_to_hs_type_get_dict():
+    active_user = BaseUserProperty(
+        name='some_org_is_active',
+        label='Active Account User',
+        group_name='some_org',
+        native_type='bool',
+    )
+
+    _dict = active_user.get_dict()
+
+    assert 'Yes' in [o['label'] for o in _dict['options']]
 
 
 def test_date_native_type_to_hs_type():

@@ -65,8 +65,9 @@ class HubSpot:
             url = "{}/createOrUpdate/email/{}".format(CONTACTS_URL, user.email)
             response = self.request('post', url, json=user_data)
             if response is not None:
-                user.crm_unique_id = response.json()['vid']
-                user.save()
+                if hasattr(user, 'crm_unique_id'):
+                    user.crm_unique_id = response.json()['vid']
+                    user.save()
                 return response.json()
         else:
             response = self.request(
